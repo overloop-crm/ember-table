@@ -64,6 +64,9 @@ class TableColumnMeta extends EmberObject {
   // meta object. This is set to the default width.
   _width = null;
 
+  @readOnly('_node.align')
+  align;
+
   @readOnly('_node.isLeaf')
   isLeaf;
 
@@ -231,6 +234,13 @@ class ColumnTreeNode extends EmberObject {
     );
 
     return this._subcolumnNodes;
+  }
+
+  @computed('column.align')
+  get align() {
+    let align = get(this, 'column.align');
+
+    return align;
   }
 
   @computed('column.subcolumns.[]')
