@@ -1,5 +1,5 @@
 import Component from '@ember/component';
-import { equal, bool } from '@ember/object/computed';
+import { equal, bool, or } from '@ember/object/computed';
 import { observer } from '@ember/object';
 import { scheduleOnce } from '@ember/runloop';
 
@@ -9,6 +9,8 @@ export default Component.extend({
 
   classNameBindings: [
     'isFirstColumn',
+    'isFirstFixed',
+    'isLastFixed',
     'isFixedLeft',
     'isFixedRight',
     'hasWidth',
@@ -16,6 +18,8 @@ export default Component.extend({
     'hasMaxWidth',
   ],
 
+  isFirstFixed: or('columnMeta.isFirstFixedLeft', 'columnMeta.isFirstFixedRight'),
+  isLastFixed: or('columnMeta.isLastFixedLeft', 'columnMeta.isLastFixedRight'),
   isFirstColumn: equal('columnMeta.index', 0),
   isFixedLeft: equal('columnMeta.isFixed', 'left'),
   isFixedRight: equal('columnMeta.isFixed', 'right'),

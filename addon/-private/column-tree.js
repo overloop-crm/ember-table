@@ -97,6 +97,18 @@ class TableColumnMeta extends EmberObject {
   @readOnly('_node.offsetRight')
   offsetRight;
 
+  @readOnly('_node.isLastFixedLeft')
+  isLastFixedLeft;
+
+  @readOnly('_node.isLastFixedRight')
+  isLastFixedRight;
+
+  @readOnly('_node.isFirstFixedLeft')
+  isFirstFixedLeft;
+
+  @readOnly('_node.isFirstFixedRight')
+  isFirstFixedRight;
+
   @computed('isLeaf', '_node.{depth,tree.root.maxChildDepth}')
   get rowSpan() {
     if (!this.get('isLeaf')) {
@@ -296,6 +308,42 @@ class ColumnTreeNode extends EmberObject {
     }
 
     return get(this, 'parent.isFixed');
+  }
+
+  @computed('isFixed', 'tree.leftFixedNodes')
+  get isLastFixedLeft() {
+    if (!get(this, 'isFixed')) {
+      return false;
+    }
+    let [last] = get(this, 'tree.leftFixedNodes').slice(-1);
+    return last === this;
+  }
+
+  @computed('isFixed', 'tree.leftFixedNodes')
+  get isFirstFixedLeft() {
+    if (!get(this, 'isFixed')) {
+      return false;
+    }
+    let first = get(this, 'tree.leftFixedNodes')[0];
+    return first === this;
+  }
+
+  @computed('isFixed', 'tree.rightFixedNodes')
+  get isLastFixedRight() {
+    if (!get(this, 'isFixed')) {
+      return false;
+    }
+    let [last] = get(this, 'tree.rightFixedNodes').slice(-1);
+    return last === this;
+  }
+
+  @computed('isFixed', 'tree.rightFixedNodes')
+  get isFirstFixedRight() {
+    if (!get(this, 'isFixed')) {
+      return false;
+    }
+    let first = get(this, 'tree.rightFixedNodes')[0];
+    return first === this;
   }
 
   @computed('parent.depth')
