@@ -500,7 +500,7 @@ class ColumnTreeNode extends EmberObject {
     }
 
     let subcolumns = get(parent, 'subcolumnNodes');
-    let offsetLeft = get(parent, 'element.offsetLeft');
+    let offsetLeft = get(parent, 'offsetLeft');
 
     for (let column of subcolumns) {
       if (column === this) {

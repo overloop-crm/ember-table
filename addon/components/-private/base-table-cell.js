@@ -49,9 +49,15 @@ export default Component.extend({
       }
 
       if (this.get('isFixedLeft')) {
-        this.element.style.left = `${Math.round(this.get('columnMeta.offsetLeft'))}px`;
+        let offsetLeft =
+          this.get('columnMeta._node.parent.element.offsetLeft') ||
+          this.get('columnMeta.offsetLeft');
+        this.element.style.left = `${Math.round(offsetLeft)}px`;
       } else if (this.get('isFixedRight')) {
-        this.element.style.right = `${Math.round(this.get('columnMeta.offsetRight'))}px`;
+        let offsetRight =
+          this.get('columnMeta._node.parent.element.offsetLeft') ||
+          this.get('columnMeta.offsetLeft');
+        this.element.style.right = `${Math.round(offsetRight)}px`;
       }
     }
   },
