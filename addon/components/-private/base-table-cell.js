@@ -48,9 +48,7 @@ export default Component.extend({
       this.element.style.minWidth = minWidth;
       this.element.style.maxWidth = maxWidth;
 
-      if (this.get('columnMeta.align')) {
-        this.element.style.textAlign = this.get('columnMeta.align');
-      }
+      this.element.style.textAlign = this.get('columnMeta.align') || '';
 
       if (this.get('isFixedLeft')) {
         let offsetLeft =
