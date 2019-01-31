@@ -816,7 +816,9 @@ export default class ColumnTree extends EmberObject {
       left -= getInnerClientRect(this.container).width * this.scale;
     }
 
-    let subcolumns = get(column.parent, 'subcolumnNodes');
+    let subcolumns = get(column.parent, 'subcolumnNodes').filter(
+      subcolumn => subcolumn.isFixed === isFixed
+    );
 
     for (let column of subcolumns) {
       let offset = get(column, 'element.offsetLeft');
