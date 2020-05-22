@@ -2,17 +2,14 @@
 import Component from '@ember/component';
 import { bind } from '@ember/runloop';
 import { A as emberA } from '@ember/array';
-
-import { argument } from '@ember-decorators/argument';
-import { required } from '@ember-decorators/argument/validation';
-import { type, optional } from '@ember-decorators/argument/type';
-import { Action } from '@ember-decorators/argument/types';
-import { computed } from '@ember-decorators/object';
-import { notEmpty, or } from '@ember-decorators/object/computed';
-import { tagName } from '@ember-decorators/component';
+import defaultTo from '../../-private/utils/default-to';
+import { addObserver } from '../../-private/utils/observer';
+import { computed } from '@ember/object';
+import { notEmpty, or, readOnly } from '@ember/object/computed';
 
 import { closest } from '../../-private/utils/element';
 import { sortMultiple, compareValues } from '../../-private/utils/sort';
+import { scheduleOnce } from '@ember/runloop';
 
 import ColumnTree, { RESIZE_MODE, FILL_MODE, WIDTH_CONSTRAINT } from '../../-private/column-tree';
 
@@ -33,133 +30,165 @@ import layout from './template';
   </EmberTable>
   ```
 
-  @yield {object} h - the API object yielded by the table header
-  @yield {Component} h.row - The table row component
+  @yield {object} head - the API object yielded by the table header
+  @yield {Component} head.row - The table row component
+  @class {{ember-thead}}
+  @public
 */
-@tagName('thead')
-export default class EmberTHead extends Component {
+
+export default Component.extend({
+  layout,
+  tagName: 'thead',
+
   /**
     The API object passed in by the table
-  */
-  @argument
-  @required
-  @type('object')
-  api;
 
-  @or('api.api', 'api')
-  unwrappedApi;
+    @argument api
+    @required
+    @type object
+  */
+  api: null,
+
+  unwrappedApi: or('api.api', 'api'),
 
   /**
     The column definitions for the table
+
+    @argument columns
+    @required
+    @type array? ([])
   */
-  @argument
-  @required
-  @type(Array)
-  columns;
+  columns: defaultTo(() => []),
 
   /**
     An ordered array of the sorts applied to the table
+    @argument sorts
+    @type array? ([])
   */
-  @argument({ defaultIfUndefined: true })
-  @type(Array)
-  sorts = [];
+  sorts: defaultTo(() => []),
 
   /**
-    An optional sort
+    An optional sort. If not specified, defaults to <sortMultiple>, which
+    sorts by each `sort` in `sorts`, in order.
+    @argument sortFunction
+    @type function? (<sortMultiple>)
   */
-  @argument({ defaultIfUndefined: true })
-  @type(optional(Function))
-  sortFunction = sortMultiple;
+  sortFunction: defaultTo(() => sortMultiple),
 
   /**
     An ordered array of the sorts applied to the table
+    @argument compareFunction
+    @type function? (<compareValues>)
   */
-  @argument({ defaultIfUndefined: true })
-  @type(optional(Function))
-  compareFunction = compareValues;
+  compareFunction: defaultTo(() => compareValues),
+
+  /**
+    Flag that allows to sort empty values after non empty ones
+    @argument sortEmptyLast
+    @type boolean? (false)
+  */
+  sortEmptyLast: defaultTo(false),
 
   /**
     Flag that toggles reordering in the table
+    @argument enableReorder
+    @type boolean? (true)
   */
-  @argument({ defaultIfUndefined: true })
-  @type('boolean')
-  enableReorder = true;
+  enableReorder: defaultTo(true),
 
   /**
     Flag that toggles resizing in the table
+    @argument enableResize
+    @type boolean? (true)
   */
-  @argument({ defaultIfUndefined: true })
-  @type('boolean')
-  enableResize = true;
+  enableResize: defaultTo(true),
 
   /**
     Sets which column resizing behavior to use. Possible values are `standard`
     (resizing a column pushes or pulls all other columns) and `fluid` (resizing a
     column subtracts width from neighboring columns).
+    @argument resizeMode
+    @type string? ('standard')
   */
-  @argument({ defaultIfUndefined: true })
-  @type('string')
-  resizeMode = RESIZE_MODE.STANDARD;
+  resizeMode: defaultTo(RESIZE_MODE.STANDARD),
 
   /**
     A configuration that controls how columns shrink (or extend) when total column width does not
-    match table width. Behavior of column modification is as follow:
+    match table width. Behavior of column modification is as follows:
 
     * "equal-column": extra space is distributed equally among all columns
     * "first-column": extra space is added into the first column.
     * "last-column": extra space is added into the last column.
+    * "nth-column": extra space is added into the column defined by `fillColumnIndex`.
+
+    @argument fillMode
+    @type string? ('equal-column')
   */
-  @argument({ defaultIfUndefined: true })
-  @type('string')
-  fillMode = FILL_MODE.EQUAL_COLUMN;
+  fillMode: defaultTo(FILL_MODE.EQUAL_COLUMN),
+
+  /**
+    A configuration that controls which column shrinks (or extends) when `fillMode` is
+    'nth-column'. This is zero indexed.
+
+    @argument fillColumnIndex
+    @type number?
+  */
+  fillColumnIndex: null,
 
   /**
     Sets a constraint on the table's size, such that it must be greater than, less
     than, or equal to the size of the containing element.
+    Valid values:
+      * 'none'
+      * 'eq-container'
+      * 'gte-container'
+      * 'lte-container'
+
+    @argument widthConstraint
+    @type string? ('none')
   */
-  @argument({ defaultIfUndefined: true })
-  @type('string')
-  widthConstraint = WIDTH_CONSTRAINT.NONE;
+  widthConstraint: defaultTo(WIDTH_CONSTRAINT.NONE),
 
   /**
     A numeric adjustment to be applied to the constraint on the table's size.
+
+    @argument containerWidthAdjustment
+    @type number?
   */
-  @argument
-  @type(optional('number'))
-  containerWidthAdjustment = null;
+  containerWidthAdjustment: null,
 
   /**
     An action that is sent when sorts is updated
+    @argument onHeaderAction
+    @type Action?
   */
-  @argument
-  @type(optional(Action))
-  onHeaderAction = null;
+  onHeaderAction: null,
 
   /**
     An action that is sent when sorts is updated
+    @argument onUpdateSorts
+    @type Action?
   */
-  @argument
-  @type(optional(Action))
-  onUpdateSorts = null;
+  onUpdateSorts: null,
 
   /**
     An action that is sent when columns are reordered
+    @argument onReorder
+    @type Action?
   */
-  @argument
-  @type(optional(Action))
-  onReorder = null;
+  onReorder: null,
 
   /**
     An action that is sent when columns are resized
+    @argument onResize
+    @type Action?
   */
-  @argument
-  @type(optional(Action))
-  onResize = null;
+  onResize: null,
+
+  'data-test-row-count': readOnly('wrappedRows.length'),
 
   init() {
-    super.init(...arguments);
-
-    this.layout = layout;
+    this._super(...arguments);
 
     /**
      * A sensor object that sends events to this table component when table size changes. When table
@@ -185,49 +214,60 @@ export default class EmberTHead extends Component {
     this._updateApi();
     this._updateColumnTree();
 
-    this.addObserver('sorts', this._updateApi);
-    this.addObserver('sortFunction', this._updateApi);
-    this.addObserver('reorderFunction', this._updateApi);
+    addObserver(this, 'sorts', this._updateApi);
+    addObserver(this, 'sortFunction', this._updateApi);
+    addObserver(this, 'reorderFunction', this._updateApi);
 
-    this.addObserver('sorts', this._updateColumnTree);
-    this.addObserver('columns', this._updateColumnTree);
-    this.addObserver('fillMode', this._updateColumnTree);
-    this.addObserver('resizeMode', this._updateColumnTree);
-    this.addObserver('widthConstraint', this._updateColumnTree);
+    addObserver(this, 'sorts', this._updateColumnTree);
+    addObserver(this, 'columns.[]', this._onColumnsChange);
+    addObserver(this, 'fillMode', this._updateColumnTree);
+    addObserver(this, 'fillColumnIndex', this._updateColumnTree);
+    addObserver(this, 'resizeMode', this._updateColumnTree);
+    addObserver(this, 'widthConstraint', this._updateColumnTree);
 
-    this.addObserver('enableSort', this._updateColumnTree);
-    this.addObserver('enableResize', this._updateColumnTree);
-    this.addObserver('enableReorder', this._updateColumnTree);
-  }
+    addObserver(this, 'enableSort', this._updateColumnTree);
+    addObserver(this, 'enableResize', this._updateColumnTree);
+    addObserver(this, 'enableReorder', this._updateColumnTree);
+  },
 
   _updateApi() {
     this.set('unwrappedApi.columnTree', this.columnTree);
     this.set('unwrappedApi.sorts', this.get('sorts'));
     this.set('unwrappedApi.sortFunction', this.get('sortFunction'));
     this.set('unwrappedApi.compareFunction', this.get('compareFunction'));
-  }
+    this.set('unwrappedApi.sortEmptyLast', this.get('sortEmptyLast'));
+  },
 
   _updateColumnTree() {
     this.columnTree.set('sorts', this.get('sorts'));
     this.columnTree.set('columns', this.get('columns'));
     this.columnTree.set('fillMode', this.get('fillMode'));
+    this.columnTree.set('fillColumnIndex', this.get('fillColumnIndex'));
     this.columnTree.set('resizeMode', this.get('resizeMode'));
     this.columnTree.set('widthConstraint', this.get('widthConstraint'));
 
     this.columnTree.set('enableSort', this.get('enableSort'));
     this.columnTree.set('enableResize', this.get('enableResize'));
     this.columnTree.set('enableReorder', this.get('enableReorder'));
-  }
+  },
+
+  _onColumnsChange() {
+    if (this.get('columns.length') === 0) {
+      return;
+    }
+    this._updateColumnTree();
+    scheduleOnce('actions', this, this.fillupHandler);
+  },
 
   didInsertElement() {
-    super.didInsertElement(...arguments);
+    this._super(...arguments);
 
     this._container = closest(this.element, '.ember-table');
 
     this.columnTree.registerContainer(this._container);
 
-    this._tableResizeSensor = new ResizeSensor(this._container, bind(this.fillupHandler));
-  }
+    this._tableResizeSensor = new ResizeSensor(this._container, bind(this, this.fillupHandler));
+  },
 
   willDestroyElement() {
     this._tableResizeSensor.detach(this._container);
@@ -240,47 +280,52 @@ export default class EmberTHead extends Component {
       this.columnMetaCache.delete(column);
     }
 
-    super.willDestroyElement(...arguments);
-  }
+    this._super(...arguments);
+  },
 
-  @notEmpty('onUpdateSorts')
-  enableSort;
+  enableSort: notEmpty('onUpdateSorts'),
 
-  @computed('columnTree.rows.[]', 'sorts.[]', 'headerActions.[]', 'fillMode')
-  get wrappedRows() {
-    let rows = this.get('columnTree.rows');
-    let sorts = this.get('sorts');
-    let columnMetaCache = this.get('columnMetaCache');
+  wrappedRows: computed(
+    'columnTree.rows.[]',
+    'sorts.[]',
+    'headerActions.[]',
+    'fillMode',
+    'fillColumnIndex',
+    function() {
+      let rows = this.get('columnTree.rows');
+      let sorts = this.get('sorts');
+      let columnMetaCache = this.get('columnMetaCache');
 
-    return emberA(
-      rows.map(row => {
-        let cells = emberA(
-          row.map(columnValue => {
-            let columnMeta = columnMetaCache.get(columnValue);
+      return emberA(
+        rows.map(row => {
+          let cells = emberA(
+            row.map(columnValue => {
+              let columnMeta = columnMetaCache.get(columnValue);
 
-            return {
-              columnValue,
-              columnMeta,
-              sorts,
-              sendUpdateSort: this.sendUpdateSort,
-            };
-          })
-        );
+              return {
+                columnValue,
+                columnMeta,
+                sorts,
+                sendUpdateSort: this.sendUpdateSort.bind(this),
+              };
+            })
+          );
 
-        return { cells, isHeader: true };
-      })
-    );
-  }
+          return { cells, isHeader: true };
+        })
+      );
+    }
+  ),
 
-  sendUpdateSort = newSorts => {
+  sendUpdateSort(newSorts) {
     this.sendAction('onUpdateSorts', newSorts);
-  };
+  },
 
-  fillupHandler = () => {
+  fillupHandler() {
     if (this.isDestroying) {
       return;
     }
 
     this.get('columnTree').ensureWidthConstraint();
-  };
-}
+  },
+});

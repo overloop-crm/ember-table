@@ -1,15 +1,11 @@
 import Controller from '@ember/controller';
-import { computed } from '@ember-decorators/object';
+import { computed } from '@ember/object';
 import faker from 'faker';
+import { getRandomInt } from '../../../../../utils/generators';
 
-function getRandomInt(max, min) {
-  return faker.random.number({ min, max });
-}
-
-export default class SimpleController extends Controller {
+export default Controller.extend({
   // BEGIN-SNIPPET docs-example-sortings.js
-  @computed
-  get columns() {
+  columns: computed(function() {
     return [
       { name: 'Company ▸ Department ▸ Product', valuePath: 'name' },
       { name: 'Price', valuePath: 'price' },
@@ -17,16 +13,15 @@ export default class SimpleController extends Controller {
       { name: 'Unsold', valuePath: 'unsold' },
       { name: 'Total Revenue', valuePath: 'totalRevenue' },
     ];
-  }
+  }),
   // END-SNIPPET
 
-  @computed
-  get rows() {
+  rows: computed(function() {
     let rows = [];
 
     for (let i = 0; i < getRandomInt(5, 2); i++) {
       let companyRow = {
-        name: faker.company.companyName(i),
+        name: faker.company.companyName(),
         price: 'N/A',
         sold: 0,
         unsold: 0,
@@ -36,7 +31,7 @@ export default class SimpleController extends Controller {
 
       for (let j = 0; j < getRandomInt(5, 2); j++) {
         let departmentRow = {
-          name: faker.commerce.department(j),
+          name: faker.commerce.department(),
           price: 'N/A',
           sold: 0,
           unsold: 0,
@@ -51,7 +46,7 @@ export default class SimpleController extends Controller {
           let totalRevenue = price * sold;
 
           let product = {
-            name: faker.commerce.productName(k),
+            name: faker.commerce.productName(),
             price: `$${price}`,
             sold,
             unsold,
@@ -79,5 +74,34 @@ export default class SimpleController extends Controller {
     }
 
     return rows;
-  }
-}
+  }),
+
+  // BEGIN-SNIPPET docs-example-2-state-sortings.js
+  actions: {
+    twoStateSorting(sorts) {
+      if (sorts.length > 1) {
+        // multi-column sort, default behavior
+        this.set('sorts', sorts);
+        return;
+      }
+
+      let hasExistingSort = this.sorts && this.sorts.length;
+      let isDefaultSort = !sorts.length;
+
+      if (hasExistingSort && isDefaultSort) {
+        // override empty sorts with reversed previous sort
+        let newSorts = [
+          {
+            valuePath: this.sorts[0].valuePath,
+            isAscending: !this.sorts[0].isAscending,
+          },
+        ];
+        this.set('sorts', newSorts);
+        return;
+      }
+
+      this.set('sorts', sorts);
+    },
+  },
+  // END-SNIPPET
+});

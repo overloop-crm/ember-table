@@ -103,20 +103,27 @@ Columns are resizeable and reorderable by default. You can disable these by
 using the `enableResize` and `enableReorder` flags. You can also change the
 `resizeMode` to `'fluid'` to have columns subtract width from their neighbors.
 
+**Note**: Ember 3.13 has changed the way property changes propagate. Due to these
+changes, column reordering with Ember 3.13 is very slow *unless you turn on async observers*.
+For more details, see the Ember Table [issue #775](https://github.com/Addepar/ember-table/issues/775)
+or the related Ember.js issue [#18225](https://github.com/emberjs/ember.js/issues/18225).
+
+In addition, in Ember 3.13+ there's also an issue that columns do not reorder on drag-drop properly
+when the column definitions are plain JavaScript arrays. The solution (for now) is to make sure your
+`columns` property is an Ember Array. See the Ember Table [issue #776](https://github.com/Addepar/ember-table/issues/776).
+
 {{#docs-demo as |demo|}}
   {{#demo.example name="column-resize-reorder"}}
     {{! BEGIN-SNIPPET docs-example-column-resize-reorder.hbs }}
-    <div class="py-2">
+    <div class='demo-options'>
       <label>
         {{input type="checkbox" checked=resizeEnabled}}
         Enable Resizing
       </label>
-
       <label>
         {{input type="checkbox" checked=reorderEnabled}}
         Enable Reordering
       </label>
-
       <label>
         {{input type="checkbox" checked=resizeModeFluid}}
         Resize Mode Fluid
@@ -166,7 +173,7 @@ reorder has occured.
   {{#demo.example name="resize-reorder-actions"}}
     {{! BEGIN-SNIPPET docs-example-resize-reorder-actions.hbs }}
     <p>Resized {{resizeCount}} times</p>
-    <p>Reorder {{reorderCount}} times</p>
+    <p>Reordered {{reorderCount}} times</p>
 
     <div class="demo-container small">
       <EmberTable as |t|>
@@ -183,4 +190,27 @@ reorder has occured.
   {{/demo.example}}
 
   {{demo.snippet name='docs-example-resize-reorder-actions.hbs'}}
+{{/docs-demo}}
+
+## Text alignment
+
+A column can have its text aligned left, center or right by setting the `textAlign` property on the column definition.
+
+When the property is set, the cell will have the matching class (`ember-table__text-align-left`, `ember-table__text-align-center` or `ember-table__text-align-center`).
+
+{{#docs-demo as |demo|}}
+  {{#demo.example name="text-align"}}
+    <div class="demo-container small">
+      {{! BEGIN-SNIPPET docs-example-text-align.hbs }}
+      <EmberTable as |t|>
+        <t.head @columns={{columnsWithTextAlign}} />
+
+        <t.body @rows={{rows}} />
+      </EmberTable>
+      {{! END-SNIPPET }}
+    </div>
+  {{/demo.example}}
+
+  {{demo.snippet name='docs-example-text-align.js' label='component.js'}}
+  {{demo.snippet name='docs-example-text-align.hbs'}}
 {{/docs-demo}}

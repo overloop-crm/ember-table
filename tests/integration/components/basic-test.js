@@ -31,7 +31,22 @@ module('Integration | basic', function() {
 
       // Check column header count
       assert.equal(table.headers.length, columnCount, 'renders the correct number of columns');
+      assert.equal(
+        table.header.rowCount,
+        1,
+        'The total number of rows in the header is available through the page object'
+      );
       assert.equal(table.rows.length, rowCount, 'renders the correct number of rows');
+      assert.equal(
+        table.body.rowCount,
+        rowCount,
+        'The total number of rows in the body is available through the page object'
+      );
+      assert.equal(
+        table.footer.rowCount,
+        0,
+        'The total number of rows in the footer is available through the page object'
+      );
     });
 
     test('it renders without any valuePaths', async function(assert) {
@@ -51,6 +66,11 @@ module('Integration | basic', function() {
       await generateTable(this, { columnCount, rowCount });
 
       assert.ok(table.rows.length < rowCount, 'not all rows have been rendered');
+      assert.equal(
+        table.body.rowCount,
+        rowCount,
+        'The total number of rows in the body is available through the page object'
+      );
       assert.equal(table.getCell(0, 0).text.trim(), '0A', 'correct first row rendered');
       assert.notEqual(
         table.getCell(table.rows.length - 1, 0).text.trim(),
@@ -217,6 +237,50 @@ module('Integration | basic', function() {
           'expected the inverse yield content to be displayed'
         );
       }
+    });
+
+    test('Text can be aligned left, center or right', async function(assert) {
+      let classList;
+      let rowCount = 1;
+      let columns = generateColumns(4);
+      columns[1].textAlign = 'right';
+      columns[2].textAlign = 'center';
+      columns[3].textAlign = 'left';
+
+      await generateTable(this, { columns, columnCount: columns.length, rowCount });
+
+      for (let tagName of ['th', 'td']) {
+        classList = find(`${tagName}:nth-of-type(1)`).classList;
+        assert.notOk(
+          classList.contains('ember-table__text-align-left') ||
+            classList.contains('ember-table__text-align-center') ||
+            classList.contains('ember-table__text-align-right'),
+          `No class is applied by default on ${tagName} cells for text alignment`
+        );
+
+        classList = find(`${tagName}:nth-of-type(2)`).classList;
+        assert.ok(
+          classList.contains('ember-table__text-align-right'),
+          `${tagName} cells can be right aligned`
+        );
+
+        classList = find(`${tagName}:nth-of-type(3)`).classList;
+        assert.ok(
+          classList.contains('ember-table__text-align-center'),
+          `${tagName} cells can be centered`
+        );
+
+        classList = find(`${tagName}:nth-of-type(4)`).classList;
+        assert.ok(
+          classList.contains('ember-table__text-align-left'),
+          `${tagName} cells can be left aligned`
+        );
+      }
+    });
+
+    test('it can be rendered with no columns', async function(assert) {
+      await generateTable(this, { rows: [], columns: [] });
+      assert.ok(true, 'The empty table rendered without incident');
     });
   });
 

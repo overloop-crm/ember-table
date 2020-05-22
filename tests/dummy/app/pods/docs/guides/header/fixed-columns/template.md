@@ -25,7 +25,7 @@ parent's value instead.
 ## Multiple Fixed Columns and Ordering
 
 Multiple columns may be fixed to either side of the table. Fixed columns _must_
-be place contiguously at the start or end of the `columns` array. If columns
+be placed contiguously at the start or end of the `columns` array. If columns
 are marked as fixed and are out of order, Ember Table will sort the columns
 array directly to fix the ordering.
 
@@ -56,7 +56,7 @@ you can make fixed columns toggleable for your users.
     {{docs/guides/header/fixed-columns/dynamic-example
       rows=rows
       columns=dynamicFixedColumns
-      toggleFixed=(action toggleFixed)
+      toggleFixed=(action "toggleFixed")
     }}
   {{/demo.example}}
 

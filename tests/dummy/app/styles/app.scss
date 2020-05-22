@@ -1,95 +1,44 @@
 @import './tables';
-@import '@addepar/style-toolbox/core-variables/index';
-@import '@addepar/style-toolbox/utilities/index';
-@import '@addepar/style-toolbox/elements/index';
-@import '@addepar/style-toolbox/components/index';
+@import '@addepar/style-toolbox/onyx/index';
 
-$navy: #001f3f;
-$blue: #0074d9;
-$aqua: #7fdbff;
-$teal: #39cccc;
-$olive: #3d9970;
-$green: #2ecc40;
-$lime: #01ff70;
-$yellow: #ffdc00;
-$orange: #ff851b;
-$red: #ff4136;
-$maroon: #85144b;
-$fuchsia: #f012be;
-$purple: #b10dc9;
-$black: #111111;
-$grey: #aaaaaa;
-$silver: #dddddd;
-
-.text-navy {
-  color: $navy;
-}
-.text-blue {
-  color: $blue;
-}
-.text-aqua {
-  color: $aqua;
-}
-.text-teal {
-  color: $teal;
-}
-.text-olive {
-  color: $olive;
-}
-.text-green {
-  color: $green;
-}
-.text-lime {
-  color: $lime;
-}
-.text-yellow {
-  color: $yellow;
-}
-.text-orange {
-  color: $orange;
-}
-.text-red {
-  color: $red;
-}
-.text-maroon {
-  color: $maroon;
-}
-.text-fuchsia {
-  color: $fuchsia;
-}
-.text-purple {
-  color: $purple;
-}
-.text-black {
-  color: $black;
-}
-.text-grey {
-  color: $grey;
-}
-.text-silver {
-  color: $silver;
+// Override the url for the checkmark that indicates row selection.
+// This overrides a style in style-toolbox that uses the absolute url
+// '/@addepar/style-toolbox/assets/images/checkmark.svg'. When addon docs
+// are deployed, the root URL is '/ember-table/', and thus the checkmark asset
+// is not able to be loaded.
+// So instead we override the style and use a checkmark svg that has been added to this project:
+// See https://github.com/Addepar/ember-table/issues/593
+// The style-toolbox style is here: https://github.com/Addepar/addepar-style-toolbox/blob/640825d7722571c223f4b93e78a5c528018521e5/styles/onyx/elements/inputs/checkbox/_checkbox-core.scss#L68
+.ember-table .et-toggle-select input[type='checkbox'] + *:after {
+  background-image: url('images/checkmark.svg');
 }
 
-.options-container {
-  display: flex;
-  flex-flow: row wrap;
-  font-size: 0.9em;
+$colors: (
+  navy: #001f3f,
+  blue: #0074d9,
+  aqua: #7fdbff,
+  teal: #39cccc,
+  olive: #3d9970,
+  green: #2ecc40,
+  lime: #01ff70,
+  yellow: #ffdc00,
+  orange: #ff851b,
+  red: #ff4136,
+  maroon: #85144b,
+  fuchsia: #f012be,
+  purple: #b10dc9,
+  black: #111111,
+  grey: #aaaaaa,
+  silver: #dddddd,
+);
 
-  border-top: solid 1px #dae1e7;
-  margin-top: 1em;
-  padding-top: 1em;
-
-  .label {
-    flex: 0 1 40%;
-    font-weight: normal;
-    text-align: right;
-
-    padding-bottom: 1em;
-    padding-right: 1em;
+@each $color-name, $color-value in $colors {
+  .bg-#{$color-name} {
+    background-color: #{$color-value};
+    color: white;
   }
-
-  .options {
-    padding-bottom: 1em;
+  .text-#{$color-name} {
+    color: #{$color-value};
   }
 }
 
@@ -155,4 +104,12 @@ tr {
   margin: -4px;
   padding: 4px;
   height: 30px;
+}
+
+.small {
+  font-size: small;
+}
+
+.custom-header {
+  padding: 0.25em;
 }

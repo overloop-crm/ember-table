@@ -1,15 +1,12 @@
 {{#docs-viewer as |viewer|}}
   {{#viewer.nav as |nav|}}
-    {{nav.section 'Introduction' style='large'}}
+    {{nav.section 'Introduction'}}
 
-    <li class="mt-8"></li>
-
+    {{nav.item 'Introduction' 'docs.index'}} {{!-- ember-cli-addon-docs requires nav item for 'docs.index', otherwise it will error on the index route --}}
     {{nav.item 'Quickstart' 'docs.quickstart'}}
     {{nav.item 'Why Ember Table?' 'docs.why-ember-table'}}
 
-    {{nav.section 'Guides' style='large'}}
-
-    <li class="mt-8"></li>
+    {{nav.section 'Guides'}}
 
     {{nav.item 'A Basic Table' 'docs.guides.main.basic-table'}}
     {{nav.item 'Table Customization' 'docs.guides.main.table-customization'}}
@@ -30,6 +27,11 @@
     {{nav.item 'Rows and Trees' 'docs.guides.body.rows-and-trees'}}
     {{nav.item 'Row Selection' 'docs.guides.body.row-selection'}}
     {{nav.item 'Occlusion' 'docs.guides.body.occlusion'}}
+
+    {{nav.section 'Testing'}}
+
+    {{nav.item 'Table Test Page' 'docs.testing.test-page'}}
+
   {{/viewer.nav}}
 
   {{#viewer.main}}

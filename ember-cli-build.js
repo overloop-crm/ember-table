@@ -2,36 +2,16 @@
 
 const EmberAddon = require('ember-cli/lib/broccoli/ember-addon');
 
-const UnwatchedDir = require('broccoli-source').UnwatchedDir;
-const MergeTrees = require('broccoli-merge-trees');
-const Funnel = require('broccoli-funnel');
-
-function generateDefaultProject() {
-  // We need to be very careful to avoid triggering a watch on the addon root here
-  // because of https://github.com/nodejs/node/issues/15683
-  let packageDetails = new Funnel(new UnwatchedDir('.'), {
-    include: ['package.json', 'README.md'],
-  });
-
-  let addonFiles = new Funnel('addon', {
-    exclude: ['**/-private/**'],
-  });
-
-  return new MergeTrees([packageDetails, addonFiles]);
-}
-
 module.exports = function(defaults) {
   let app = new EmberAddon(defaults, {
     'ember-cli-babel': {
       includePolyfill: true,
     },
     babel: {
-      plugins: ['transform-object-rest-spread'],
+      plugins: ['@babel/plugin-proposal-object-rest-spread'],
     },
-    'ember-cli-addon-docs': {
-      projects: {
-        main: generateDefaultProject(),
-      },
+    'ember-faker': {
+      enabled: true, // Always enable for dummy app because the docs examples use faker
     },
   });
 

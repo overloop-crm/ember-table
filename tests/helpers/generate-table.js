@@ -1,9 +1,14 @@
 import hbs from 'htmlbars-inline-precompile';
 import wait from 'ember-test-helpers/wait';
-import { generateColumns, generateRows } from 'dummy/utils/generators';
+import {
+  configureTableGeneration,
+  generateColumns,
+  generateRows,
+  resetTableGenerationConfig,
+} from 'dummy/utils/generators';
 
 // reexport for use in tests
-export { generateColumns, generateRows };
+export { configureTableGeneration, resetTableGenerationConfig, generateColumns, generateRows };
 
 const fullTable = hbs`
   <div style="height: 500px;">
@@ -14,11 +19,14 @@ const fullTable = hbs`
         columns=columns
         containerWidthAdjustment=containerWidthAdjustment
         sorts=sorts
+        sortEmptyLast=sortEmptyLast
         resizeMode=resizeMode
         fillMode=fillMode
         enableResize=enableResize
         enableReorder=enableReorder
         widthConstraint=widthConstraint
+        fillColumnIndex=fillColumnIndex
+
 
         onUpdateSorts="onUpdateSorts"
         onReorder="onReorder"
@@ -29,6 +37,8 @@ const fullTable = hbs`
         {{#ember-tr api=h as |r|}}
           {{ember-th
             api=r
+
+            onContextMenu="onHeaderCellContextMenu"
           }}
         {{/ember-tr}}
       {{/ember-thead}}
