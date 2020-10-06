@@ -8,7 +8,9 @@ import { objectAt } from '../../-private/utils/array';
 import { dynamicAlias } from '../../-private/utils/computed';
 
 const CellWrapper = EmberObject.extend({
-  cellValue: dynamicAlias('rowValue', 'columnValue.valuePath'),
+  cellValue: computed('rowValue', 'columnValue.valuePath', function() {
+    return get(this.get('rowValue'), this.get('columnValue.valuePath'));
+  }),
 
   cellMeta: computed('rowMeta', 'columnValue', function() {
     let rowMeta = get(this, 'rowMeta');
