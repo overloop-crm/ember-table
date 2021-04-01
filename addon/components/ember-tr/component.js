@@ -1,12 +1,6 @@
 import Component from '@ember/component';
-import { computed } from '@ember-decorators/object';
-import { readOnly } from '@ember-decorators/object/computed';
-import { className, classNames, tagName } from '@ember-decorators/component';
-
-import { argument } from '@ember-decorators/argument';
-import { required } from '@ember-decorators/argument/validation';
-import { type, optional } from '@ember-decorators/argument/type';
-import { Action } from '@ember-decorators/argument/types';
+import { computed } from '@ember/object';
+import { readOnly } from '@ember/object/computed';
 
 import { closest } from '../../-private/utils/element';
 
@@ -35,79 +29,68 @@ import { SELECT_MODE } from '../../-private/collapse-tree';
   </EmberTable>
   ```
 
-  @yield {object} r - the API object yielded by the table row
-  @yield {Component} r.cell - The table cell contextual component
+  @yield {object} row - the API object yielded by the table row
+  @yield {Component} row.cell - The table cell contextual component
 
-  @yield {any} r.cellValue - The value for the currently yielded cell
-  @yield {object} r.cellMeta - The meta for the currently yielded cell
+  @yield {any} row.cellValue - The value for the currently yielded cell
+  @yield {object} row.cellMeta - The meta for the currently yielded cell
 
-  @yield {object} r.columnValue - The value for the currently yielded column
-  @yield {object} r.columnMeta - The meta for the currently yielded column
+  @yield {object} row.columnValue - The value for the currently yielded column
+  @yield {object} row.columnMeta - The meta for the currently yielded column
 
-  @yield {object} r.rowValue - The value for the currently yielded row
-  @yield {object} r.rowMeta - The meta for the currently yielded row
+  @yield {object} row.rowValue - The value for the currently yielded row
+  @yield {object} row.rowMeta - The meta for the currently yielded row
+
+  @class {{ember-tr}}
+  @public
 */
-@tagName('tr')
-@classNames('et-tr')
-export default class EmberTr extends Component {
+export default Component.extend({
+  layout,
+  tagName: 'tr',
+  classNames: ['et-tr'],
+  classNameBindings: ['isSelected', 'isGroupSelected', 'isSelectable'],
+
   /**
     The API object passed in by the table body, header, or footer
+    @argument api
+    @required
+    @type object
   */
-  @argument
-  @required
-  @type('object')
-  api;
+  api: null,
 
   /**
     Action sent when the user clicks this element
+    @argument onClick
+    @type Action?
   */
-  @argument
-  @type(optional(Action))
-  onClick;
+  onClick: null,
 
   /**
     Action sent when the user double clicks this element
+    @argument onDoubleClick
+    @type Action?
   */
-  @argument
-  @type(optional(Action))
-  onDoubleClick;
+  onDoubleClick: null,
 
-  @readOnly('api.rowValue')
-  rowValue;
+  rowValue: readOnly('api.rowValue'),
 
-  @readOnly('api.rowMeta')
-  rowMeta;
+  rowMeta: readOnly('api.rowMeta'),
 
-  @readOnly('api.cells')
-  cells;
+  cells: readOnly('api.cells'),
 
-  @readOnly('api.rowSelectionMode')
-  rowSelectionMode;
+  rowSelectionMode: readOnly('api.rowSelectionMode'),
 
-  @readOnly('api.isHeader')
-  isHeader;
+  isHeader: readOnly('api.isHeader'),
 
-  @className
-  @readOnly('rowMeta.isSelected')
-  isSelected;
+  isSelected: readOnly('rowMeta.isSelected'),
 
-  @className
-  @readOnly('rowMeta.isGroupSelected')
-  isGroupSelected;
+  isGroupSelected: readOnly('rowMeta.isGroupSelected'),
 
-  init() {
-    super.init(...arguments);
-
-    this.layout = layout;
-  }
-
-  @className
-  @computed('rowSelectionMode')
-  get isSelectable() {
+  isSelectable: computed('rowSelectionMode', function() {
     let rowSelectionMode = this.get('rowSelectionMode');
 
     return rowSelectionMode === SELECT_MODE.MULTIPLE || rowSelectionMode === SELECT_MODE.SINGLE;
-  }
+  }),
 
   click(event) {
     let rowSelectionMode = this.get('rowSelectionMode');
@@ -127,11 +110,11 @@ export default class EmberTr extends Component {
     }
 
     this.sendEventAction('onClick', event);
-  }
+  },
 
   doubleClick(event) {
     this.sendEventAction('onDoubleClick', event);
-  }
+  },
 
   sendEventAction(action, event) {
     let rowValue = this.get('rowValue');
@@ -143,5 +126,5 @@ export default class EmberTr extends Component {
       rowValue,
       rowMeta,
     });
-  }
-}
+  },
+});

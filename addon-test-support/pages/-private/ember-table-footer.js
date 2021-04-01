@@ -1,17 +1,10 @@
 import { collection } from 'ember-classy-page-object';
+import EmberTableBody from './ember-table-body';
 
-export default {
+export default EmberTableBody.extend({
   scope: 'tfoot',
 
   footers: collection({
     scope: 'td',
   }),
-
-  rows: collection({
-    scope: 'tr',
-
-    cells: collection({
-      scope: 'td',
-    }),
-  }),
-};
+});

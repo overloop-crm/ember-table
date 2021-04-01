@@ -42,6 +42,59 @@ lookup paths:
   {{demo.snippet name='table-customization-custom-cell-template.js' label='component.js'}}
 {{/docs-demo}}
 
+If you want to customize a header cell but still want to include the elements to sort and
+to resize a column, use the `ember-th/sort-indicator` and `ember-th/resize-handle`
+components:
+
+{{#docs-demo as |demo|}}
+  {{#demo.example}}
+    {{! BEGIN-SNIPPET table-customization-example-sorting.hbs }}
+    <div class='demo-options'>
+      <label>
+        <input type='checkbox' checked={{showSortIndicator}} onclick={{action (mut showSortIndicator) (not showSortIndicator)}}>
+        Show Sort Indicator
+        <span class='small'>(Click header to sort)</span>
+      </label>
+      <label>
+        <input type='checkbox' checked={{showResizeHandle}} onclick={{action (mut showResizeHandle) (not showResizeHandle)}}>
+        Show Resize Handle <span class='small'>(Only appears on hover)</span>
+      </label>
+    </div>
+    <div class="demo-container">
+      <EmberTable as |t|>
+        <t.head
+          @columns={{columnsForSorting}}
+          @sorts={{sorts}}
+
+          @onUpdateSorts={{action (mut sorts)}}
+          @widthConstraint='gte-container'
+          @fillMode='first-column'
+
+          as |h|
+        >
+          <h.row as |r|>
+            <r.cell as |columnValue columnMeta|>
+              {{#if showSortIndicator}}
+                <EmberTh::SortIndicator @columnMeta={{columnMeta}} />
+              {{/if}}
+              {{columnValue.name}}
+              {{#if showResizeHandle}}
+                <EmberTh::ResizeHandle @columnMeta={{columnMeta}} />
+              {{/if}}
+            </r.cell>
+          </h.row>
+        </t.head>
+
+        <t.body @rows={{rowsForSorting}} />
+      </EmberTable>
+    </div>
+    {{! END-SNIPPET }}
+  {{/demo.example}}
+
+  {{demo.snippet name='table-customization-example-sorting.hbs'}}
+  {{demo.snippet label='component.js' name='table-customization-example-sorting.js'}}
+{{/docs-demo}}
+
 Oftentimes you'll want to provide custom components for use in table headers,
 cells, and footers. It's also pretty common to want different types of
 components used in each column. Ember Table solves this by passing the
@@ -103,7 +156,7 @@ rows), allowing us to customize the template in the same way as columns:
     <div class="demo-container small">
       {{! BEGIN-SNIPPET table-customization-rows-with-components.hbs }}
       <EmberTable as |t|>
-        <t.head @columns={{fewerColumns}} />
+        <t.head @columns={{columnsForRowsWithComponents}} />
 
         <t.body @rows={{rowsWithComponents}} as |b|>
           <b.row as |r|>

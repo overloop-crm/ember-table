@@ -30,25 +30,27 @@ override the min/max widths provided by columns.
 {{#docs-demo as |demo|}}
   {{#demo.example}}
     {{! BEGIN-SNIPPET docs-example-header-size-constraint.hbs }}
-    <label class="pr-4">
-      eq-container
-      {{radio-button name='width-constraint' value='eq-container' groupValue=widthConstraint}}
-    </label>
+    <div class="demo-options">
+      <label>
+        eq-container
+        {{radio-button name='width-constraint' value='eq-container' groupValue=widthConstraint}}
+      </label>
 
-    <label class="pr-4">
-      gte-container
-      {{radio-button name='width-constraint' value='gte-container' groupValue=widthConstraint}}
-    </label>
+      <label>
+        gte-container
+        {{radio-button name='width-constraint' value='gte-container' groupValue=widthConstraint}}
+      </label>
 
-    <label class="pr-4">
-      lte-container
-      {{radio-button name='width-constraint' value='lte-container' groupValue=widthConstraint}}
-    </label>
+      <label>
+        lte-container
+        {{radio-button name='width-constraint' value='lte-container' groupValue=widthConstraint}}
+      </label>
 
-    <label>
-      none
-      {{radio-button name='width-constraint' value='none' groupValue=widthConstraint}}
-    </label>
+      <label>
+        none
+        {{radio-button name='width-constraint' value='none' groupValue=widthConstraint}}
+      </label>
+    </div>
 
     <div class="resize-container">
       <EmberTable as |t|>
@@ -78,24 +80,32 @@ constraint. The options are:
 
 * `last-column`: Puts the delta in the first column
 
+* `nth-column`: Puts the delta in the nth column as defined by `fillColumnIndex`
+
 {{#docs-demo as |demo|}}
   {{#demo.example name='docs-example-header-fill-mode'}}
     {{! BEGIN-SNIPPET docs-example-header-fill-mode.hbs }}
-    <label class="pr-4">
-      equal-column
-      {{radio-button name='fill-mode' value='equal-column' groupValue=fillMode}}
-    </label>
+    <div class="demo-options">
+      <label>
+        equal-column
+        {{radio-button name='fill-mode' value='equal-column' groupValue=fillMode}}
+      </label>
 
-    <label class="pr-4">
-      first-column
-      {{radio-button name='fill-mode' value='first-column' groupValue=fillMode}}
-    </label>
+      <label>
+        first-column
+        {{radio-button name='fill-mode' value='first-column' groupValue=fillMode}}
+      </label>
+
+      <label>
+        last-column
+        {{radio-button name='fill-mode' value='last-column' groupValue=fillMode}}
+      </label>
+    </div>
 
     <label>
-      last-column
-      {{radio-button name='fill-mode' value='last-column' groupValue=fillMode}}
+      nth-column
+      {{radio-button name='fill-mode' value='nth-column' groupValue=fillMode}}
     </label>
-
 
     <div class="resize-container">
       <EmberTable as |t|>
@@ -104,6 +114,7 @@ constraint. The options are:
           @widthConstraint='eq-container'
           @resizeMode='fluid'
           @fillMode={{fillMode}}
+          @fillColumnIndex=1
         />
 
         <t.body @rows={{rows}} />

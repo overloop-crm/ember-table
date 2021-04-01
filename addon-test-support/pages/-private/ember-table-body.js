@@ -1,10 +1,23 @@
-import { alias, triggerable, collection, hasClass, property } from 'ember-classy-page-object';
+import PageObject, {
+  alias,
+  triggerable,
+  collection,
+  hasClass,
+  property,
+} from 'ember-classy-page-object';
 import { findElement } from 'ember-classy-page-object/extend';
 
 import { click } from 'ember-native-dom-helpers';
 
-export default {
+export default PageObject.extend({
   scope: 'tbody',
+
+  /**
+    Returns the number of rows in the body.
+  */
+  get rowCount() {
+    return Number(findElement(this).getAttribute('data-test-row-count'));
+  },
 
   /**
     List of rows in table body. Each of property/function in this collections is the property/func
@@ -73,4 +86,4 @@ export default {
   getCell(rowIndex, columnIndex) {
     return this.rows.objectAt(rowIndex).cells.objectAt(columnIndex);
   },
-};
+});
