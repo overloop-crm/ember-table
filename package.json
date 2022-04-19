@@ -25,7 +25,7 @@
     "docs:deploy": "ember deploy production"
   },
   "dependencies": {
-    "@html-next/vertical-collection": "^2.1.0",
+    "@html-next/vertical-collection": "^3.0.0-1",
     "broccoli-string-replace": "^0.1.2",
     "css-element-queries": "^0.4.0",
     "ember-assign-polyfill": "^2.2.0",
@@ -93,7 +93,7 @@
     "release-it": "^12.3.4"
   },
   "engines": {
-    "node": "8.* || >= 10.*"
+    "node": ">= 14.*"
   },
   "ember-addon": {
     "configPath": "tests/dummy/config"
